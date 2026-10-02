@@ -1,0 +1,133 @@
+We are now starting Phase 5 of the Nuvora Store project.
+
+Read AGENTS.md completely before making any changes.
+
+Implement ONLY Phase 5: Checkout and Orders.
+
+IMPORTANT:
+- Preserve all completed Phase 1–4 functionality.
+- Do not start Phase 6 or any later phase.
+- Do not redesign the existing storefront unnecessarily.
+- Do not remove or bypass the existing Supabase integration.
+- Do not expose any Supabase service-role/secret key in frontend code.
+- Do not create broad public INSERT/SELECT policies that allow customers to manipulate order totals or view other customers' orders.
+
+PHASE 5 REQUIREMENTS:
+
+1. Checkout form
+Create a functional checkout page using the existing /checkout route.
+
+Collect:
+- Customer name
+- Email
+- Address
+
+Validate all required fields.
+Validate that the email has a reasonable email format.
+Show clear validation errors.
+Keep the existing cart UI and styling consistent with the project.
+
+2. Cart validation
+Before creating an order:
+- Ensure the cart is not empty.
+- Get the current product information from Supabase.
+- Verify that every cart product still exists.
+- Verify quantities are valid positive integers.
+- Do NOT trust prices or totals coming from the browser/local cart.
+
+3. Trusted order total
+The order total must be calculated from the current prices stored in Supabase.
+
+Do not allow the client to submit an arbitrary total.
+
+Prefer a secure Supabase database RPC/function or another secure server-side Supabase mechanism that:
+- receives the product IDs and quantities plus customer information,
+- reads trusted product prices from public.products,
+- calculates the total,
+- creates the order,
+- creates the order_items using the trusted database prices,
+- returns the newly created order ID.
+
+Do NOT create a broad anonymous INSERT policy on orders/order_items that allows arbitrary customer-supplied totals.
+
+4. Order creation
+Create one record in public.orders containing:
+- customer_name
+- email
+- address
+- trusted total
+- default pending status
+- user_id should remain null for now because authentication is Phase 6.
+
+Create corresponding public.order_items records containing:
+- order_id
+- product_id
+- quantity
+- price snapshot from Supabase
+- created_at
+
+The price stored in order_items must be the trusted product price at the time of purchase.
+
+5. Success behavior
+After a successful order:
+- Clear the cart.
+- Navigate to /order-success.
+- Display the REAL order ID.
+- Display the customer's name and email.
+- Display the actual order total.
+- Do not use demo/fake order data.
+- Do not create duplicate orders if the user refreshes the success page.
+
+6. Error handling
+Handle:
+- empty cart
+- invalid form data
+- product no longer existing
+- Supabase/database errors
+- order creation errors
+
+Show useful, user-friendly messages.
+
+Do not clear the cart if order creation fails.
+
+7. Loading state
+While an order is being submitted:
+- Disable the submit button.
+- Show a clear loading state.
+- Prevent accidental duplicate submissions.
+
+8. Security
+Maintain the existing RLS setup.
+
+For authenticated/guest behavior:
+- Guest checkout is allowed.
+- user_id remains null until Phase 6.
+- Do not add public read access to all orders.
+- Do not expose order history publicly.
+- If an order-success page needs order information, use the data returned from the successful order creation rather than making the browser query arbitrary orders.
+
+9. Testing
+After implementation:
+- Run npm run build.
+- Run the existing route/render checks.
+- Test the checkout flow.
+- Test an empty cart.
+- Test invalid form input.
+- Test a successful order using the seeded products.
+- Verify that the order and order_items are actually created in Supabase.
+- Verify the total is calculated from Supabase product prices.
+- Verify refreshing /order-success does not create another order.
+
+10. Documentation
+Update relevant documentation only if necessary.
+
+At the end, provide the report in the exact format required by AGENTS.md:
+
+Completed
+Files Changed
+Verification
+Current Status: PASS or NEEDS FIX
+User Action Required
+Next Phase
+
+Do not begin Phase 6.
