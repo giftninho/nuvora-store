@@ -14,4 +14,5 @@
 - Create a Supabase project, apply `supabase/schema.sql` and then `supabase/seed.sql` in its SQL Editor, and add `VITE_SUPABASE_URL` plus `VITE_SUPABASE_ANON_KEY` to Replit Secrets.
 - Use only the Supabase project URL and public anon/publishable browser key in the frontend. Never put a service-role key in Vite variables or client code.
 - RLS allows public read-only access to products. Orders and order items have RLS enabled and no browser access policies yet.
-- Checkout and login are explicitly unfinished placeholder pages. No real orders, payments, or authentication are connected.
+- Checkout submits orders through the Supabase `create_order` function. For a fresh database, apply `supabase/phase5_create_order.sql` after the schema and seed scripts. Order submission has not been verified during import setup.
+- Login remains a placeholder; authentication and payments are not connected.
