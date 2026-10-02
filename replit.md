@@ -2,6 +2,7 @@
 
 ## Running on Replit
 - Stack: React 18, React Router 6, and Vite 5. Keep the imported structure.
+- Runtime: Node.js 22, required by the installed Supabase SDK.
 - Run the **Start application** workflow, which executes `npm run dev`.
 - The development server listens on `0.0.0.0:5000` and accepts Replit preview hosts.
 - Install dependencies with `npm ci` when setting up a fresh checkout.
