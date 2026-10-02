@@ -1,0 +1,117 @@
+Now that the project is running and the Supabase credentials are configured, implement PHASE 6 authentication.
+
+Before changing anything, inspect the existing project and read AGENTS.md.
+
+Do NOT create a new project.
+Do NOT rewrite the existing application.
+Do NOT remove or break Phase 1–5 functionality.
+
+Implement:
+
+1. Supabase email/password signup
+   - Full name
+   - Email
+   - Password
+   - Confirm password
+   - Store full name in Supabase user metadata
+   - Handle email confirmation because Confirm Email is enabled
+
+2. Login
+   - Email
+   - Password
+   - Validation
+   - Loading state
+   - Friendly errors
+
+3. Logout
+
+4. Persistent authentication session
+   - Create/use AuthContext
+   - Listen for Supabase auth state changes
+   - Clean up the listener
+
+5. Forgot password
+   - Email input
+   - Supabase password reset request
+
+6. Reset password
+   - New password
+   - Confirm password
+   - Update password through Supabase Auth
+
+7. Update Navbar
+   - Logged out: Login
+   - Logged in: user indicator + Logout
+
+8. Authentication routes
+   Add signup, forgot-password and reset-password routes while preserving all existing routes.
+
+9. Orders
+   Review the existing Phase 5 order creation flow.
+
+   Phase 5 guest checkout must continue working.
+
+   Authenticated orders should be associated with the authenticated Supabase user securely.
+
+   NEVER trust a user_id supplied by the browser.
+
+   Use Supabase Auth as the source of truth.
+
+10. Database/RLS
+   Create a NEW migration:
+   supabase/phase6_auth.sql
+
+   Do not destructively rewrite Phase 5 SQL.
+
+   Authenticated users must only be able to access their own orders.
+
+   Orders must not become publicly readable.
+
+   Do not disable RLS.
+
+   Do not create broad anonymous SELECT policies.
+
+11. Security
+   - Never expose service-role keys
+   - Never store passwords manually
+   - Never use localStorage as the authentication system
+   - Never trust client-supplied user IDs
+   - Keep Supabase Auth as the source of truth
+
+12. Preserve Phase 5
+   Do not replace the secure server-side order total calculation.
+   Do not trust browser prices or totals.
+   Do not break guest checkout.
+
+13. Testing
+   Run:
+   npm run build
+
+   Verify:
+   - signup renders
+   - login renders
+   - forgot password renders
+   - reset password renders
+   - logout works
+   - session persists after refresh
+   - products still load
+   - cart still works
+   - guest checkout still works
+   - authenticated checkout works
+   - authenticated orders are associated with the correct user
+   - users cannot access another user's orders
+
+Do NOT implement Mailgun.
+Do NOT implement payments.
+Do NOT implement Phase 7.
+Do NOT commit or push to GitHub.
+
+At the end, give me:
+- files created
+- files modified
+- database migration
+- authentication features
+- RLS/security changes
+- tests performed
+- build result
+- remaining issues

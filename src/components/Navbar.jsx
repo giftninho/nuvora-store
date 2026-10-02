@@ -1,10 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { cartCount } = useCart();
+  const { user, loading, signOut } = useAuth();
+  const [logoutError, setLogoutError] = useState('');
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setLogoutError('');
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } catch (error) {
+      setLogoutError(error.message);
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
+  const displayName = user?.user_metadata?.full_name || user?.email;
 
   return (
     <header className="navbar">
@@ -39,16 +57,32 @@ export default function Navbar() {
                 <span className="cart-badge">{cartCount}</span>
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/login" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                <span>Sign In</span>
-              </NavLink>
-            </li>
+            {!loading && !user && (
+              <li>
+                <NavLink to="/login" className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Login</span>
+                </NavLink>
+              </li>
+            )}
+            {!loading && user && (
+              <>
+                <li className="nav-user" title={user.email || ''}>
+                  <span className="nav-user-indicator" aria-hidden="true">✓</span>
+                  <span className="nav-user-name">Welcome, {displayName}</span>
+                </li>
+                <li>
+                  <button className="nav-link nav-logout" type="button" onClick={handleSignOut} disabled={isSigningOut}>
+                    {isSigningOut ? 'Signing out…' : 'Log out'}
+                  </button>
+                </li>
+              </>
+            )}
           </ul>
+          {logoutError && <p className="nav-auth-error" role="alert">{logoutError}</p>}
         </nav>
       </div>
     </header>
