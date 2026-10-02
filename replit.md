@@ -9,6 +9,8 @@
 - Run the existing route-rendering check with `node _render-check.mjs`.
 
 ## Current scope
-- No secrets or external services are needed to run the imported storefront.
-- Products are local seed data; the cart uses the existing client-side implementation.
+- Product listings come from Supabase; the cart remains client-side.
+- Create a Supabase project, apply `supabase/schema.sql` and then `supabase/seed.sql` in its SQL Editor, and add `VITE_SUPABASE_URL` plus `VITE_SUPABASE_ANON_KEY` to Replit Secrets.
+- Use only the Supabase project URL and public anon/publishable browser key in the frontend. Never put a service-role key in Vite variables or client code.
+- RLS allows public read-only access to products. Orders and order items have RLS enabled and no browser access policies yet.
 - Checkout and login are explicitly unfinished placeholder pages. No real orders, payments, or authentication are connected.

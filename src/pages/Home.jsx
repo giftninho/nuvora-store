@@ -3,6 +3,7 @@ import ProductCard from '../components/ProductCard';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { getProducts } from '../services/products';
+import { SupabaseConfigurationError } from '../lib/supabase';
 
 export default function Home() {
   const [products, setProducts] = useState([]);
@@ -17,7 +18,11 @@ export default function Home() {
       setProducts(data);
     } catch (err) {
       console.error('Failed to load products:', err);
-      setError('We could not load the products right now. Please try again.');
+      setError(
+        err instanceof SupabaseConfigurationError
+          ? err.message
+          : 'We could not load the products right now. Please try again.'
+      );
     } finally {
       setLoading(false);
     }

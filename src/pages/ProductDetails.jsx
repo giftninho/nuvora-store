@@ -4,6 +4,7 @@ import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
 import { useCart } from '../context/CartContext';
 import { getProductById } from '../services/products';
+import { SupabaseConfigurationError } from '../lib/supabase';
 import { formatNaira } from '../utils/currency';
 
 export default function ProductDetails() {
@@ -25,7 +26,11 @@ export default function ProductDetails() {
       setProduct(data);
     } catch (err) {
       console.error('Failed to load product:', err);
-      setError('We could not load this product right now. Please try again.');
+      setError(
+        err instanceof SupabaseConfigurationError
+          ? err.message
+          : 'We could not load this product right now. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
