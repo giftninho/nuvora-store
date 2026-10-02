@@ -1,10 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { formatNaira } from '../utils/currency';
+import { retryOrderConfirmationEmail } from '../services/orders';
 
 export default function OrderSuccess() {
   const location = useLocation();
   const orderData = location.state;
+  const [emailStatus, setEmailStatus] = useState(orderData?.emailStatus || 'pending');
+  const [isRetryingEmail, setIsRetryingEmail] = useState(false);
+  const [emailError, setEmailError] = useState('');
+
+  const handleRetryEmail = async () => {
+    if (!orderData?.emailDeliveryToken || isRetryingEmail) return;
+    setIsRetryingEmail(true);
+    setEmailError('');
+    try {
+      setEmailStatus(await retryOrderConfirmationEmail(
+        orderData.orderId,
+        orderData.emailDeliveryToken,
+      ));
+    } catch (error) {
+      setEmailStatus('failed');
+      setEmailError(error.message);
+    } finally {
+      setIsRetryingEmail(false);
+    }
+  };
 
   // If the page is accessed directly (no state), show a graceful fallback.
   if (!orderData || !orderData.orderId) {
@@ -62,9 +83,28 @@ export default function OrderSuccess() {
           Order total: <strong>{formatNaira(Number(orderData.total))}</strong>
         </p>
 
-       <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', marginBottom: '2rem' }}>
-  Your order details have been received successfully.
-</p>
+        <p className={`order-email-status order-email-status--${emailStatus}`} role={emailStatus === 'failed' ? 'alert' : 'status'}>
+          {emailStatus === 'sent' && <>A confirmation email has been sent to <strong>{orderData.email}</strong>.</>}
+          {emailStatus === 'sending' && 'Your order is saved. The confirmation email is being processed.'}
+          {emailStatus === 'failed' && (
+            <>
+              Your order is saved, but we could not send the confirmation email to <strong>{orderData.email}</strong>.
+              {emailError && <span className="order-email-error"> {emailError}</span>}
+            </>
+          )}
+          {emailStatus === 'pending' && 'Your order is saved. Confirmation email status is not available yet.'}
+        </p>
+
+        {emailStatus === 'failed' && orderData.emailDeliveryToken && (
+          <button
+            className="btn btn-outline order-email-retry"
+            type="button"
+            onClick={handleRetryEmail}
+            disabled={isRetryingEmail}
+          >
+            {isRetryingEmail ? 'Sending confirmation…' : 'Retry confirmation email'}
+          </button>
+        )}
 
         <Link to="/" className="btn btn-primary" style={{ padding: '0.75rem 2rem' }}>
           Continue Shopping

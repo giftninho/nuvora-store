@@ -81,6 +81,8 @@ export default function Checkout() {
           email: orderData.email,
           total: orderData.total,
           createdAt: orderData.created_at,
+          emailStatus: orderData.emailStatus,
+          emailDeliveryToken: orderData.emailDeliveryToken,
         },
         replace: true, // prevent Back-button re-submit
       });

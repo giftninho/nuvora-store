@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { getSupabaseClient } from '../lib/supabase';
-import { getFriendlyAuthError } from '../services/auth';
+import { getFriendlyAuthError, signOut as signOutFromSupabase } from '../services/auth';
 
 const AuthContext = createContext(null);
 
@@ -33,10 +33,7 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     if (!client) throw new Error('Authentication is unavailable right now.');
-    const { error } = await client.auth.signOut();
-    if (error) {
-      throw new Error(getFriendlyAuthError(error, 'We could not sign you out. Please try again.'));
-    }
+    await signOutFromSupabase();
   }, [client]);
 
   return (

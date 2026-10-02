@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthPanel from '../components/AuthPanel';
-import { signInWithEmail, validateEmail } from '../services/auth';
+import GoogleSignInButton from '../components/GoogleSignInButton';
+import { signIn, signInWithGoogle, validateEmail } from '../services/auth';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -26,11 +27,22 @@ export default function Login() {
     setError('');
     setIsSubmitting(true);
     try {
-      await signInWithEmail({ email, password });
+      await signIn({ email, password });
       navigate(location.state?.from?.pathname || '/', { replace: true });
     } catch (authError) {
       setError(authError.message);
     } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await signInWithGoogle();
+    } catch (authError) {
+      setError(authError.message);
       setIsSubmitting(false);
     }
   };
@@ -77,6 +89,8 @@ export default function Login() {
           {isSubmitting ? 'Signing in…' : 'Sign In'}
         </button>
       </form>
+      <div className="auth-divider"><span>or</span></div>
+      <GoogleSignInButton onClick={handleGoogleSignIn} disabled={isSubmitting} />
 
       <p className="auth-alternate">
         New to Nuvora Store? <Link to="/signup">Create an account</Link>

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthPanel from '../components/AuthPanel';
-import { signUpWithEmail, validateEmail, validatePassword } from '../services/auth';
+import GoogleSignInButton from '../components/GoogleSignInButton';
+import { signInWithGoogle, signUp, validateSignUpFields } from '../services/auth';
 
 export default function Signup() {
   const [fullName, setFullName] = useState('');
@@ -15,22 +16,9 @@ export default function Signup() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!fullName.trim()) {
-      setError('Full name is required.');
-      return;
-    }
-    const emailError = validateEmail(email);
-    if (emailError) {
-      setError(emailError);
-      return;
-    }
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
-      return;
-    }
-    if (password !== confirmPassword) {
-      setError('The passwords do not match.');
+    const fieldErrors = validateSignUpFields({ fullName, email, password, confirmPassword });
+    if (Object.keys(fieldErrors).length > 0) {
+      setError(Object.values(fieldErrors)[0]);
       return;
     }
 
@@ -38,7 +26,7 @@ export default function Signup() {
     setNotice('');
     setIsSubmitting(true);
     try {
-      const result = await signUpWithEmail({ fullName, email, password });
+      const result = await signUp({ fullName, email, password });
       if (result.confirmationRequired) {
         setNotice('Your account is ready. Check your email and confirm your address before signing in.');
       } else {
@@ -47,6 +35,17 @@ export default function Signup() {
     } catch (authError) {
       setError(authError.message);
     } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await signInWithGoogle();
+    } catch (authError) {
+      setError(authError.message);
       setIsSubmitting(false);
     }
   };
@@ -115,6 +114,8 @@ export default function Signup() {
           {isSubmitting ? 'Creating account…' : 'Create Account'}
         </button>
       </form>
+      <div className="auth-divider"><span>or</span></div>
+      <GoogleSignInButton onClick={handleGoogleSignIn} disabled={isSubmitting} />
       <p className="auth-alternate">Already have an account? <Link to="/login">Sign in</Link></p>
     </AuthPanel>
   );

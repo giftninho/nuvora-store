@@ -259,6 +259,27 @@ button.nav-link {
   color: var(--text-muted);
 }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--border-subtle);
+  content: '';
+}
+
+.google-sign-in {
+  min-height: 2.75rem;
+}
+
 .auth-hint {
   margin-top: 0.3rem;
   color: var(--text-muted);
@@ -449,6 +470,44 @@ button:disabled,
 
 .btn-block {
   width: 100%;
+}
+
+.order-email-status {
+  margin: 1.25rem 0 1.5rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  background: var(--bg-page);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.order-email-status--sent {
+  color: #166534;
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.order-email-status--failed {
+  color: #991b1b;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.order-email-status--sending {
+  color: #854d0e;
+  background: #fefce8;
+  border-color: #fde68a;
+}
+
+.order-email-retry {
+  margin-bottom: 0.75rem;
+}
+
+.order-email-error {
+  display: block;
+  margin-top: 0.4rem;
 }
 
 .empty-text {
