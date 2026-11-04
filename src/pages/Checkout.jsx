@@ -1,12 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { formatNaira } from '../utils/currency';
 import { validateCheckoutFields, placeOrder } from '../services/orders';
+import { useAuth } from '../context/AuthContext';
 
 export default function Checkout() {
   const { cartItems, subtotal, clearCart } = useCart();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Form state
   const [customerName, setCustomerName] = useState('');
@@ -22,6 +24,12 @@ export default function Checkout() {
   const submittingRef = useRef(false);
 
   const isEmpty = cartItems.length === 0;
+
+  useEffect(() => {
+    if (!user) return;
+    setCustomerName((current) => current || user.user_metadata?.full_name || '');
+    setEmail((current) => current || user.email || '');
+  }, [user]);
 
   // ---- Empty cart view ----
   if (isEmpty) {
@@ -73,6 +81,8 @@ export default function Checkout() {
           email: orderData.email,
           total: orderData.total,
           createdAt: orderData.created_at,
+          emailStatus: orderData.emailStatus,
+          emailDeliveryToken: orderData.emailDeliveryToken,
         },
         replace: true, // prevent Back-button re-submit
       });

@@ -72,5 +72,53 @@ export async function placeOrder(customer, cartItems) {
     throw new Error(message);
   }
 
-  return data;
+  const emailDeliveryToken = data?.email_confirmation_token;
+  let emailStatus = 'failed';
+
+  if (emailDeliveryToken && data?.order_id) {
+    try {
+      const { data: emailResult, error: emailError } = await getSupabaseClient()
+        .functions.invoke('send-order-confirmation', {
+          body: {
+            orderId: String(data.order_id),
+            confirmationToken: emailDeliveryToken,
+          },
+        });
+
+      if (!emailError) {
+        if (emailResult?.status === 'sent') emailStatus = 'sent';
+        else if (emailResult?.status === 'sending') emailStatus = 'sending';
+      }
+    } catch {
+      // The order has already been committed. Email failures must not cause a
+      // checkout retry to create a duplicate order.
+    }
+  }
+
+  if (emailStatus === 'failed') {
+    console.warn('Order saved; confirmation email was not sent.');
+  }
+
+  const { email_confirmation_token: _token, ...order } = data || {};
+  return {
+    ...order,
+    emailStatus,
+    emailDeliveryToken,
+  };
+}
+
+export async function retryOrderConfirmationEmail(orderId, confirmationToken) {
+  if (!orderId || !confirmationToken) {
+    throw new Error('The email retry details are no longer available.');
+  }
+
+  const { data, error } = await getSupabaseClient()
+    .functions.invoke('send-order-confirmation', {
+      body: { orderId: String(orderId), confirmationToken },
+    });
+
+  if (error) throw new Error('The confirmation email could not be sent. Please try again.');
+  if (data?.status === 'sent') return 'sent';
+  if (data?.status === 'sending') return 'sending';
+  return 'failed';
 }
